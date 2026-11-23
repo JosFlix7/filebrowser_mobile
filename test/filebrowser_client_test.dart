@@ -323,22 +323,24 @@ void main() {
   });
 
   group('base URL policy', () {
-    test('rejects http:// to a non-local host', () {
-      expect(() => FileBrowserClient(baseUrl: 'http://demo.example.com'),
-          throwsArgumentError);
-      expect(FileBrowserClient.isAllowedBaseUrl('http://demo.example.com'),
-          isFalse);
-    });
-
-    test('allows http:// to loopback hosts (dev/test servers)', () {
+    test('allows http:// including LAN and Tailscale hosts', () {
       for (final base in [
+        'http://demo.example.com',
+        'http://192.168.1.75:8080',
+        'http://100.70.7.3:8080',
         'http://localhost:8080',
         'http://127.0.0.1:8080',
-        'http://10.0.2.2:8080', // emulator alias for its host
+        'http://10.0.2.2:8080',
       ]) {
         expect(FileBrowserClient(baseUrl: base).baseUrl, base);
         expect(FileBrowserClient.isAllowedBaseUrl(base), isTrue);
       }
+    });
+
+    test('rejects schemes other than http and https', () {
+      expect(FileBrowserClient.isAllowedBaseUrl('ftp://files.example.com'),
+          isFalse);
+      expect(FileBrowserClient.isAllowedBaseUrl('file:///tmp'), isFalse);
     });
 
     test('a schemeless host defaults to https://', () {

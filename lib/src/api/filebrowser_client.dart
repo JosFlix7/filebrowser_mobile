@@ -105,39 +105,27 @@ class FileBrowserClient {
 
   static String _normalizeBase(String url) {
     var u = url.trim();
-    // Enforce TLS: an explicit http:// base is rejected (credentials and the
-    // JWT travel in headers and must never go out in cleartext); a schemeless
-    // host defaults to https://. Loopback hosts are exempt — the traffic
-    // never crosses a network — which is what dev setups and the integration
-    // tests (local quantum on :8080) use. Mirrored by the Android
-    // networkSecurityConfig, which likewise permits cleartext only to these
-    // hosts.
-    if (u.startsWith('http://') && !_isLoopback(u)) {
-      throw ArgumentError(
-          'Insecure http:// server URLs are not allowed — use https://.');
-    }
-    if (!u.startsWith('http://') && !u.startsWith('https://')) {
+    // Both http:// and https:// are accepted. File Browser Quantum often
+    // listens on plain HTTP (LAN or a Tailscale IP). A schemeless host still
+    // defaults to https://. Android permits the cleartext via
+    // networkSecurityConfig.
+    final lower = u.toLowerCase();
+    if (!lower.startsWith('http://') && !lower.startsWith('https://')) {
       u = 'https://$u';
     }
     return u.endsWith('/') ? u.substring(0, u.length - 1) : u;
   }
 
-  /// True when [url]'s host is local to the machine (or, for `10.0.2.2`, the
-  /// Android emulator's alias for its host), so cleartext cannot leave it.
-  static bool _isLoopback(String url) {
-    final host = Uri.tryParse(url.trim())?.host ?? '';
-    return host == 'localhost' ||
-        host == '127.0.0.1' ||
-        host == '::1' ||
-        host == '10.0.2.2';
-  }
-
-  /// Whether [url] is an acceptable server URL: https://, schemeless, or
-  /// http:// to a loopback host. Used by the login form to reject cleartext
-  /// before setup.
+  /// Whether [url] is an acceptable server URL: `http://`, `https://`, or a
+  /// schemeless host. Other schemes (`ftp://`, `file://`, …) are rejected.
+  /// Used by the login form before setup.
   static bool isAllowedBaseUrl(String url) {
     final u = url.trim().toLowerCase();
-    return !u.startsWith('http://') || _isLoopback(u);
+    if (u.isEmpty) return false;
+    final schemeEnd = u.indexOf('://');
+    if (schemeEnd < 0) return true;
+    final scheme = u.substring(0, schemeEnd);
+    return scheme == 'http' || scheme == 'https';
   }
 
   /// Builds `<base>/api/<segment>` (no trailing slash).

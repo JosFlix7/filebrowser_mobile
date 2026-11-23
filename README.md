@@ -70,8 +70,9 @@ server to connect to.
     100 MiB. Folders aren't sendable (they'd need a zip) — the option explains
     why instead of disappearing.
 - **In-app media** — zoomable image gallery (`photo_view`,
-  `cached_network_image`) and a video player (`video_player` + `chewie`),
-  streaming from the resource download endpoint with a Bearer auth header.
+  `cached_network_image`), a video player (`video_player` + `chewie`), and an
+  audio player (`video_player`), streaming from the resource download endpoint
+  with a Bearer auth header.
   Viewers (and the text viewer) carry the full per-item action menu — share,
   download, open with, rename, delete — so nothing requires going back to the
   grid.
@@ -252,12 +253,12 @@ when flutter isn't already resolvable):
   `background_downloader` foreground service).
 - **Share-into-app intent filters** on `MainActivity`: `SEND` and `SEND_MULTIPLE`
   for `image/*`, `video/*`, `audio/*`, and `application/*`.
-- A `networkSecurityConfig` that **denies cleartext traffic app-wide** — the
-  server URL must be `https://`, except for loopback hosts (`localhost`,
-  `127.0.0.1`, and the emulator's `10.0.2.2`), where traffic never crosses a
-  network — used by dev setups and the integration tests. Backup and
-  device-to-device transfer are likewise disabled (`allowBackup="false"` +
-  data-extraction rules), since app storage holds Keystore-wrapped credentials.
+- A `networkSecurityConfig` that **allows cleartext HTTP** as well as HTTPS,
+  so the app can reach a File Browser Quantum server on a LAN or Tailscale
+  address such as `http://192.168.1.1:8080`. A host entered without a scheme
+  still defaults to `https://`. Backup and device-to-device transfer are
+  disabled (`allowBackup="false"` + data-extraction rules), since app storage
+  holds Keystore-wrapped credentials.
 
 `local_auth` requires the host Activity to extend `FlutterFragmentActivity`, and
 `minSdkVersion` is set to 23+ for biometrics — both are already configured.

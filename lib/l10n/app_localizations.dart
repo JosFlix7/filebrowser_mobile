@@ -235,7 +235,7 @@ abstract class AppLocalizations {
   /// Hint (example value) for the server URL field
   ///
   /// In en, this message translates to:
-  /// **'https://files.example.com'**
+  /// **'http://192.168.1.1:8080'**
   String get loginServerUrlHint;
 
   /// Label of the username field
@@ -256,10 +256,10 @@ abstract class AppLocalizations {
   /// **'Required'**
   String get loginValidationRequired;
 
-  /// Validator message when the server URL is not https
+  /// Validator message when the server URL scheme is not http or https
   ///
   /// In en, this message translates to:
-  /// **'Use https:// — insecure http:// is not allowed'**
+  /// **'Use an http:// or https:// server URL'**
   String get loginValidationHttpsOnly;
 
   /// Login submit button
@@ -1223,6 +1223,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not play video:\n{error}'**
   String videoCouldNotPlay(String error);
+
+  /// Error shown (and copied) when audio playback fails
+  ///
+  /// In en, this message translates to:
+  /// **'Could not play audio:\n{error}'**
+  String audioCouldNotPlay(String error);
 }
 
 class _AppLocalizationsDelegate

@@ -18,6 +18,7 @@ import '../transfers/transfer_service.dart';
 import 'batch_ops.dart';
 import 'breadcrumbs.dart';
 import 'destination_picker.dart';
+import 'audio_player_screen.dart';
 import 'error_display.dart';
 import 'image_gallery_screen.dart';
 import 'item_actions.dart';
@@ -244,6 +245,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
           _openImage(res, [res]);
         case ResourceActivation.playVideo:
           _openVideo(res);
+        case ResourceActivation.playAudio:
+          _openAudio(res);
         case ResourceActivation.viewText:
           _openText(res);
       }
@@ -280,7 +283,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
       return;
     }
     // Folders navigate; media and text open the in-app viewer. Every other
-    // file (pdf, audio, unknown types — [ResourceActivation.openExternally])
+    // file (pdf and unknown types — [ResourceActivation.openExternally])
     // routes to the action sheet, whose primary action is "Open with…"
     // (hand-off to a native app). The sheet is kept as the tap target for
     // these files because, without an in-app viewer, the sheet is the only
@@ -293,6 +296,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
         _openImage(item, all);
       case ResourceActivation.playVideo:
         _openVideo(item);
+      case ResourceActivation.playAudio:
+        _openAudio(item);
       case ResourceActivation.viewText:
         _openText(item);
       case ResourceActivation.openExternally:
@@ -330,10 +335,29 @@ class _BrowserScreenState extends State<BrowserScreen> {
     ));
   }
 
+  /// Quantum 2.0 rejects `inline=true` for audio and video (403 "use
+  /// /media/stream"). The plain download URL still serves the bytes with Range
+  /// support, which is what ExoPlayer can play.
+  Uri _streamUri(String path) => _client.rawUri(path);
+
   void _openVideo(FbResource item) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => VideoPlayerScreen(
-        url: _client.rawUri(item.path, inline: true),
+        url: _streamUri(item.path),
+        headers: _client.authHeaders,
+        title: item.name,
+        resource: item,
+        client: _client,
+        actions: _actions,
+        onChanged: _refreshAfterChange,
+      ),
+    ));
+  }
+
+  void _openAudio(FbResource item) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => AudioPlayerScreen(
+        url: _streamUri(item.path),
         headers: _client.authHeaders,
         title: item.name,
         resource: item,
@@ -1342,17 +1366,10 @@ class _GalleryTile extends StatelessWidget {
       );
 
   IconData _iconForType(FbResource item) {
-    switch (item.type) {
-      case 'pdf':
-        return Icons.picture_as_pdf;
-      case 'text':
-      case 'textImmutable':
-        return Icons.description;
-      case 'audio':
-        return Icons.audiotrack;
-      default:
-        return Icons.insert_drive_file;
-    }
+    if (item.isAudio) return Icons.audiotrack;
+    if (item.isPdf) return Icons.picture_as_pdf;
+    if (item.isText) return Icons.description;
+    return Icons.insert_drive_file;
   }
 }
 

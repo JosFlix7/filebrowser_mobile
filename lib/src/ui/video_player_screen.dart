@@ -9,8 +9,9 @@ import 'error_display.dart';
 import 'file_details_sheet.dart';
 import 'item_actions.dart';
 
-/// Streams a video from the server (Range-enabled download endpoint) with native
-/// controls. Auth is passed via the `Authorization: Bearer` HTTP header.
+/// Streams a video from the server download endpoint (no `inline=true`; Quantum
+/// 2.0 answers that with 403 for media) with native controls. Auth is passed
+/// via the `Authorization: Bearer` HTTP header.
 class VideoPlayerScreen extends StatefulWidget {
   const VideoPlayerScreen({
     super.key,

@@ -78,7 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginServerUrlLabel => 'Server URL';
 
   @override
-  String get loginServerUrlHint => 'https://files.example.com';
+  String get loginServerUrlHint => 'http://192.168.1.1:8080';
 
   @override
   String get loginUsernameLabel => 'Username';
@@ -91,7 +91,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginValidationHttpsOnly =>
-      'Use https:// — insecure http:// is not allowed';
+      'Use an http:// or https:// server URL';
 
   @override
   String get loginContinue => 'Continue';
@@ -688,5 +688,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String videoCouldNotPlay(String error) {
     return 'Could not play video:\n$error';
+  }
+
+  @override
+  String audioCouldNotPlay(String error) {
+    return 'Could not play audio:\n$error';
   }
 }

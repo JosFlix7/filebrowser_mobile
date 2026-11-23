@@ -255,9 +255,12 @@ void main() {
           ResourceActivation.openFolder);
     });
 
-    test('images and videos open the in-app viewer', () {
+    test('images, videos, and audio open the in-app viewer', () {
       expect(res(name: 'p.png').activation, ResourceActivation.viewImage);
       expect(res(name: 'm.mp4').activation, ResourceActivation.playVideo);
+      expect(res(name: 's.mp3').activation, ResourceActivation.playAudio);
+      expect(res(name: 'voice', type: 'audio').activation,
+          ResourceActivation.playAudio);
     });
 
     test('text-like files open the in-app text viewer', () {
@@ -268,9 +271,8 @@ void main() {
           ResourceActivation.viewText);
     });
 
-    test('pdf/audio and unknown types open externally', () {
+    test('pdf and unknown types open externally', () {
       expect(res(name: 'd.pdf').activation, ResourceActivation.openExternally);
-      expect(res(name: 's.mp3').activation, ResourceActivation.openExternally);
       expect(res(name: 'x.bin').activation, ResourceActivation.openExternally);
     });
   });
